@@ -2,6 +2,6 @@
 _extends: .github
 repository:
   name: aws-eks-karpenter-controller
-  description: This component provisions [Karpenter](https://karpenter
+  description: "This component provisions Karpenter on an EKS cluster. It requires at least version 0.32.0 of Karpenter, though you are encouraged to use the latest version"
   homepage: https://cloudposse.com/accelerate
   topics: terraform, terraform-component
