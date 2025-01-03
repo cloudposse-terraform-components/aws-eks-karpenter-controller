@@ -59,7 +59,7 @@ locals {
                   "aws:ResourceTag/topology.kubernetes.io/region": "${var.region}"
                 },
                 "ArnEquals": {
-                   "ec2:InstanceProfile": "${replace(local.karpenter_node_role_arn, "role", "instance-profile")}"
+                  "ec2:InstanceProfile": "${replace(local.karpenter_node_role_arn, "role", "instance-profile")}"
                 }
               }
             }
