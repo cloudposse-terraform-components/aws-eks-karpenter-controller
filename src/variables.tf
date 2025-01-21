@@ -93,6 +93,23 @@ variable "eks_component_name" {
   default     = "eks/cluster"
 }
 
+variable "metrics_enabled" {
+  type        = bool
+  description = "Whether to expose the Karpenter's Prometheus metric"
+  default     = true
+}
+
+variable "metrics_port" {
+  type        = number
+  description = "Container port to use for metrics"
+  default     = 8080
+
+  validation {
+    condition     = var.metrics_port > 0 && var.metrics_port < 65536
+    error_message = "The metrics port must be between 1 and 65535."
+  }
+}
+
 variable "interruption_handler_enabled" {
   type        = bool
   default     = true

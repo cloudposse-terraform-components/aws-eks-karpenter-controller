@@ -84,12 +84,31 @@ module "karpenter" {
       fullnameOverride = module.this.name
       serviceAccount = {
         name = module.this.name
-      }
+      },
       controller = {
         resources = var.resources
-      }
+      },
       replicas = var.replicas
     }),
+    var.metrics_enabled ? yamlencode({
+      controller = {
+        metrics = {
+          port = var.metrics_port
+        }
+      },
+      podAnnotations = {
+        "ad.datadoghq.com/controller.checks" = jsonencode({
+          "karpenter" = {
+            "init_config" = {},
+            "instances" = [
+              {
+                "openmetrics_endpoint" = "http://%%host%%:${var.metrics_port}/metrics"
+              }
+            ]
+          }
+        })
+      }
+    }) : null,
     #  karpenter-specific values
     yamlencode({
       logConfig = {
