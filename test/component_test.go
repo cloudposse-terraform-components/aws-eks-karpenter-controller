@@ -1,11 +1,15 @@
 package test
 
 import (
+	"context"
 	"testing"
 	helper "github.com/cloudposse/test-helpers/pkg/atmos/component-helper"
+	awsHelper "github.com/cloudposse/test-helpers/pkg/aws"
 	"github.com/cloudposse/test-helpers/pkg/atmos"
 	"github.com/cloudposse/test-helpers/pkg/helm"
 	"github.com/stretchr/testify/assert"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 type ComponentSuite struct {
@@ -40,6 +44,38 @@ func (s *ComponentSuite) TestBasic() {
 	assert.Equal(s.T(), metadata.Namespace, namespace)
 	assert.NotNil(s.T(), metadata.Values)
 	assert.Equal(s.T(), metadata.Version, "1.3.2")
+
+
+	clusterOptions := s.GetAtmosOptions("eks/cluster", stack, nil)
+	clusrerId := atmos.Output(s.T(), clusterOptions, "eks_cluster_id")
+
+	cluster := awsHelper.GetEksCluster(s.T(), context.Background(), awsRegion, clusrerId)
+
+
+	config, err := awsHelper.NewK8SClientConfig(cluster)
+	assert.NoError(s.T(), err)
+	assert.NotNil(s.T(), config)
+
+	// Create the API extensions client set
+	apiExtensionsClient, err := clientset.NewForConfig(config)
+	assert.NoError(s.T(), err)
+	assert.NotNil(s.T(), apiExtensionsClient)
+
+	crdResource := "nodeclaims.karpenter.sh"
+	crdExists := false
+
+	// Check if the CRD exists
+	crdList, err := apiExtensionsClient.ApiextensionsV1().CustomResourceDefinitions().List(context.TODO(), metav1.ListOptions{})
+	assert.NoError(s.T(), err, "error listing CRDs")
+
+	for _, crd := range crdList.Items {
+		if crd.GetName() == crdResource {
+			crdExists = true
+			break
+		}
+	}
+
+	assert.True(s.T(), crdExists, "CRD %s does not exist", crdResource)
 
 	s.DriftTest(component, stack, &inputs)
 }
