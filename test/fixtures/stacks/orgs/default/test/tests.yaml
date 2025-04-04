@@ -1,0 +1,6 @@
+import:
+  - orgs/default/test/_defaults
+  - catalog/vpc
+  - catalog/eks-cluster
+  - catalog/usecase/basic
+  - catalog/usecase/disabled
