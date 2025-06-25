@@ -172,7 +172,7 @@ provider "helm" {
       }
     }
   }
-  experiments {
+  experiments = {
     manifest = var.helm_manifest_experiment_enabled && module.this.enabled
   }
 }
