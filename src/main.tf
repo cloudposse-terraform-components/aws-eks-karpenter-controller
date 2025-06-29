@@ -43,7 +43,7 @@ module "karpenter_crd" {
   cleanup_on_fail = var.cleanup_on_fail
   timeout         = var.timeout
 
-  create_namespace_with_kubernetes = false # Namespace is created by EKS/Kubernetes by default
+  create_namespace_with_kubernetes = false # Namespace is created by eks/cluster by default
   kubernetes_namespace             = local.kubernetes_namespace
 
   eks_cluster_oidc_issuer_url = coalesce(replace(local.eks_cluster_identity_oidc_issuer, "https://", ""), "deleted")
