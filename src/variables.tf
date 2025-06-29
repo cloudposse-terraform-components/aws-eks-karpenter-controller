@@ -81,12 +81,6 @@ variable "chart_values" {
   default     = {}
 }
 
-variable "rbac_enabled" {
-  type        = bool
-  description = "Enable/disable RBAC"
-  default     = true
-}
-
 variable "eks_component_name" {
   type        = string
   description = "The name of the eks component"
