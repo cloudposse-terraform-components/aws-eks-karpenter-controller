@@ -123,6 +123,11 @@ module "karpenter" {
         batchIdleDuration = var.settings.batch_idle_duration
         batchMaxDuration  = var.settings.batch_max_duration
         clusterName       = local.eks_cluster_id
+        featureGates = {
+          nodeRepair = coalesce(var.settings.feature_gates.node_repair, false)
+          reservedCapacity = coalesce(var.settings.feature_gates.reserved_capacity, true)
+          spotToSpotConsolidation = coalesce(var.settings.feature_gates.spot_to_spot_consolidation, false)
+        }
         },
         local.interruption_handler_enabled ? {
           interruptionQueue = local.interruption_handler_queue_name

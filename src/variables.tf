@@ -129,6 +129,11 @@ variable "settings" {
   type = object({
     batch_idle_duration = optional(string, "1s")
     batch_max_duration  = optional(string, "10s")
+    feature_gates = object({
+      node_repair = optional(bool, false)
+      reserved_capacity = optional(bool, true)
+      spot_to_spot_consolidation = optional(bool, false)
+    })
   })
   description = <<-EOT
   A subset of the settings for the Karpenter controller.
