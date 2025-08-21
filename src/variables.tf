@@ -141,7 +141,7 @@ variable "settings" {
   nullable    = false
 }
 
-variable "extra_settings" {
+variable "additional_settings" {
   type        = any
   description = <<-EOT
   Additional settings to merge into the Karpenter controller settings.
@@ -150,7 +150,7 @@ variable "extra_settings" {
   and take precedence over any conflicting keys.
   
   Example:
-  extra_settings = {
+  additional_settings = {
     featureGates = {
       nodeRepair = false
       reservedCapacity = true
