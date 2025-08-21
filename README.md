@@ -2,8 +2,11 @@
 
 <!-- markdownlint-disable -->
 <a href="https://cpco.io/homepage"><img src="https://github.com/cloudposse-terraform-components/aws-eks-karpenter-controller/blob/main/.github/banner.png?raw=true" alt="Project Banner"/></a><br/>
-    <p align="right">
-<a href="https://github.com/cloudposse-terraform-components/aws-eks-karpenter-controller/releases/latest"><img src="https://img.shields.io/github/release/cloudposse-terraform-components/aws-eks-karpenter-controller.svg?style=for-the-badge" alt="Latest Release"/></a><a href="https://slack.cloudposse.com"><img src="https://slack.cloudposse.com/for-the-badge.svg" alt="Slack Community"/></a></p>
+
+
+<p align="right"><a href="https://github.com/cloudposse-terraform-components/aws-eks-karpenter-controller/releases/latest"><img src="https://img.shields.io/github/release/cloudposse-terraform-components/aws-eks-karpenter-controller.svg?style=for-the-badge" alt="Latest Release"/></a><a href="https://slack.cloudposse.com"><img src="https://slack.cloudposse.com/for-the-badge.svg" alt="Slack Community"/></a><a href="https://cloudposse.com/support/"><img src="https://img.shields.io/badge/Get_Support-success.svg?style=for-the-badge" alt="Get Support"/></a>
+
+</p>
 <!-- markdownlint-restore -->
 
 <!--
@@ -27,8 +30,25 @@
 
 -->
 
-This component provisions [Karpenter](https://karpenter.sh) on an EKS cluster. It requires at least version 0.32.0 of
-Karpenter, though you are encouraged to use the latest version.
+This component provisions [Karpenter](https://karpenter.sh) on an EKS cluster.
+It requires at least version 0.32.0 of Karpenter, though using the latest
+version is recommended.
+
+
+> [!TIP]
+> #### 👽 Use Atmos with Terraform
+> Cloud Posse uses [`atmos`](https://atmos.tools) to easily orchestrate multiple environments using Terraform. <br/>
+> Works with [Github Actions](https://atmos.tools/integrations/github-actions/), [Atlantis](https://atmos.tools/integrations/atlantis), or [Spacelift](https://atmos.tools/integrations/spacelift).
+>
+> <details>
+> <summary><strong>Watch demo of using Atmos with Terraform</strong></summary>
+> <img src="https://github.com/cloudposse/atmos/blob/main/docs/demo.gif?raw=true"/><br/>
+> <i>Example of running <a href="https://atmos.tools"><code>atmos</code></a> to manage infrastructure from our <a href="https://atmos.tools/quick-start/">Quick Start</a> tutorial.</i>
+> </details>
+
+
+
+
 
 ## Usage
 
@@ -92,7 +112,7 @@ Here we describe how to provision Karpenter on an EKS cluster. We will be using 
 
 ### Provision Service-Linked Roles for EC2 Spot and EC2 Spot Fleet
 
-**Note:** If you want to use EC2 Spot for the instances launched by Karpenter, you may need to provision the following
+Note: If you want to use EC2 Spot for the instances launched by Karpenter, you may need to provision the following
 Service-Linked Role for EC2 Spot:
 
 - Service-Linked Role for EC2 Spot
@@ -342,20 +362,20 @@ this component.)
 
 For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/)
 
-### References
+> [!IMPORTANT]
+> In Cloud Posse's examples, we avoid pinning modules to specific versions to prevent discrepancies between the documentation
+> and the latest released versions. However, for your own projects, we strongly advise pinning each module to the exact version
+> you're using. This practice ensures the stability of your infrastructure. Additionally, we recommend implementing a systematic
+> approach for updating versions to avoid unexpected changes.
 
-For more details on the CRDs, see:
 
-- https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/#5-create-nodepool
-- https://karpenter.sh/v0.36/concepts/disruption/#interruption
-- https://karpenter.sh/v0.36/concepts/nodepools/#taints
-- https://karpenter.sh/v0.36/concepts/nodepools/#spectemplatespecrequirements
 
-- https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/
-- https://aws.github.io/aws-eks-best-practices/karpenter
 
-<!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+
+
+
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -455,37 +475,7 @@ For more details on the CRDs, see:
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Block status of the deployed release |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
-
-## Related reading
-
-- https://karpenter.sh
-- https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler
-- https://github.com/aws/karpenter
-- https://ec2spotworkshops.com/karpenter.html
-- https://www.eksworkshop.com/docs/autoscaling/compute/karpenter/
-- https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html
-- https://aws.amazon.com/premiumsupport/knowledge-center/fargate-troubleshoot-profile-creation
-- https://learn.hashicorp.com/tutorials/terraform/kubernetes-crd-faas
-- https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html
-
-
-> [!TIP]
-> #### 👽 Use Atmos with Terraform
-> Cloud Posse uses [`atmos`](https://atmos.tools) to easily orchestrate multiple environments using Terraform. <br/>
-> Works with [Github Actions](https://atmos.tools/integrations/github-actions/), [Atlantis](https://atmos.tools/integrations/atlantis), or [Spacelift](https://atmos.tools/integrations/spacelift).
->
-> <details>
-> <summary><strong>Watch demo of using Atmos with Terraform</strong></summary>
-> <img src="https://github.com/cloudposse/atmos/blob/main/docs/demo.gif?raw=true"/><br/>
-> <i>Example of running <a href="https://atmos.tools"><code>atmos</code></a> to manage infrastructure from our <a href="https://atmos.tools/quick-start/">Quick Start</a> tutorial.</i>
-> </detalis>
-
-
-
-
-
+<!-- markdownlint-restore -->
 
 
 
@@ -498,6 +488,32 @@ Check out these related projects.
 
 - [Cloud Posse Terraform Modules](https://docs.cloudposse.com/modules/) - Our collection of reusable Terraform modules used by our reference architectures.
 - [Atmos](https://atmos.tools) - Atmos is like docker-compose but for your infrastructure
+
+
+## References
+
+For additional context, refer to some of these links.
+
+- [Karpenter Getting Started: Create NodePool](https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/#5-create-nodepool) - 
+- [Karpenter Concepts: Interruption](https://karpenter.sh/v0.36/concepts/disruption/#interruption) - 
+- [Karpenter Concepts: Taints](https://karpenter.sh/v0.36/concepts/nodepools/#taints) - 
+- [Karpenter Concepts: Requirements](https://karpenter.sh/v0.36/concepts/nodepools/#spectemplatespecrequirements) - 
+- [Karpenter Getting Started](https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/) - 
+- [AWS EKS Best Practices: Karpenter](https://aws.github.io/aws-eks-best-practices/karpenter) - 
+- [Karpenter](https://karpenter.sh) - 
+- [AWS Blog: Introducing Karpenter](https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler) - 
+- [aws/karpenter](https://github.com/aws/karpenter) - 
+- [EC2 Spot Workshops: Karpenter](https://ec2spotworkshops.com/karpenter.html) - 
+- [EKS Workshop: Karpenter](https://www.eksworkshop.com/docs/autoscaling/compute/karpenter/) - 
+- [EKS Pod Execution Role](https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html) - 
+- [AWS KB: Fargate troubleshoot profile creation](https://aws.amazon.com/premiumsupport/knowledge-center/fargate-troubleshoot-profile-creation) - 
+- [HashiCorp Learn: Kubernetes CRD](https://learn.hashicorp.com/tutorials/terraform/kubernetes-crd-faas) - 
+- [AWS Batch: Spot Fleet IAM role](https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html) - 
+- [AWS IAM: Service-linked roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/using-service-linked-roles.html) - 
+- [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/) - 
+- [Getting started with Terraform (EKS Blueprints)](https://aws-ia.github.io/terraform-aws-eks-blueprints/getting-started/) - 
+- [Getting started with eksctl for Karpenter](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/) - 
+
 
 
 > [!TIP]
@@ -563,6 +579,38 @@ In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
  6. Submit a **Pull Request** so that we can review your changes
 
 **NOTE:** Be sure to merge the latest changes from "upstream" before making a pull request!
+
+
+## Running Terraform Tests
+
+We use [Atmos](https://atmos.tools) to streamline how Terraform tests are run. It centralizes configuration and wraps common test workflows with easy-to-use commands.
+
+All tests are located in the [`test/`](test) folder.
+
+Under the hood, tests are powered by Terratest together with our internal [Test Helpers](https://github.com/cloudposse/test-helpers) library, providing robust infrastructure validation.
+
+Setup dependencies:
+- Install Atmos ([installation guide](https://atmos.tools/install/))
+- Install Go [1.24+ or newer](https://go.dev/doc/install)
+- Install Terraform or OpenTofu
+
+To run tests:
+
+- Run all tests:  
+  ```sh
+  atmos test run
+  ```
+- Clean up test artifacts:  
+  ```sh
+  atmos test clean
+  ```
+- Explore additional test options:  
+  ```sh
+  atmos test --help
+  ```
+The configuration for test commands is centrally managed. To review what's being imported, see the [`atmos.yaml`](https://raw.githubusercontent.com/cloudposse/.github/refs/heads/main/.github/atmos/terraform-module.yaml) file.
+
+Learn more about our [automated testing in our documentation](https://docs.cloudposse.com/community/contribute/automated-testing/) or implementing [custom commands](https://atmos.tools/core-concepts/custom-commands/) with atmos.
 
 ### 🌎 Slack Community
 

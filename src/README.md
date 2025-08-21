@@ -8,9 +8,9 @@ tags:
 
 # Component: `eks-karpenter-controller`
 
-This component provisions [Karpenter](https://karpenter.sh) on an EKS cluster. It requires at least version 0.32.0 of
-Karpenter, though you are encouraged to use the latest version.
-
+This component provisions [Karpenter](https://karpenter.sh) on an EKS cluster.
+It requires at least version 0.32.0 of Karpenter, though using the latest
+version is recommended.
 ## Usage
 
 **Stack Level**: Regional
@@ -73,7 +73,7 @@ Here we describe how to provision Karpenter on an EKS cluster. We will be using 
 
 ### Provision Service-Linked Roles for EC2 Spot and EC2 Spot Fleet
 
-**Note:** If you want to use EC2 Spot for the instances launched by Karpenter, you may need to provision the following
+Note: If you want to use EC2 Spot for the instances launched by Karpenter, you may need to provision the following
 Service-Linked Role for EC2 Spot:
 
 - Service-Linked Role for EC2 Spot
@@ -323,20 +323,8 @@ this component.)
 
 For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/)
 
-### References
 
-For more details on the CRDs, see:
-
-- https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/#5-create-nodepool
-- https://karpenter.sh/v0.36/concepts/disruption/#interruption
-- https://karpenter.sh/v0.36/concepts/nodepools/#taints
-- https://karpenter.sh/v0.36/concepts/nodepools/#spectemplatespecrequirements
-
-- https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/
-- https://aws.github.io/aws-eks-best-practices/karpenter
-
-<!-- prettier-ignore-start -->
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- markdownlint-disable -->
 ## Requirements
 
 | Name | Version |
@@ -437,19 +425,53 @@ For more details on the CRDs, see:
 | Name | Description |
 |------|-------------|
 | <a name="output_metadata"></a> [metadata](#output\_metadata) | Block status of the deployed release |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-<!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
 
-## Related reading
 
-- https://karpenter.sh
-- https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler
-- https://github.com/aws/karpenter
-- https://ec2spotworkshops.com/karpenter.html
-- https://www.eksworkshop.com/docs/autoscaling/compute/karpenter/
-- https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html
-- https://aws.amazon.com/premiumsupport/knowledge-center/fargate-troubleshoot-profile-creation
-- https://learn.hashicorp.com/tutorials/terraform/kubernetes-crd-faas
-- https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html
+
+## References
+
+
+- [Karpenter Getting Started: Create NodePool](https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/#5-create-nodepool) - 
+
+- [Karpenter Concepts: Interruption](https://karpenter.sh/v0.36/concepts/disruption/#interruption) - 
+
+- [Karpenter Concepts: Taints](https://karpenter.sh/v0.36/concepts/nodepools/#taints) - 
+
+- [Karpenter Concepts: Requirements](https://karpenter.sh/v0.36/concepts/nodepools/#spectemplatespecrequirements) - 
+
+- [Karpenter Getting Started](https://karpenter.sh/v0.36/getting-started/getting-started-with-karpenter/) - 
+
+- [AWS EKS Best Practices: Karpenter](https://aws.github.io/aws-eks-best-practices/karpenter) - 
+
+- [Karpenter](https://karpenter.sh) - 
+
+- [AWS Blog: Introducing Karpenter](https://aws.amazon.com/blogs/aws/introducing-karpenter-an-open-source-high-performance-kubernetes-cluster-autoscaler) - 
+
+- [aws/karpenter](https://github.com/aws/karpenter) - 
+
+- [EC2 Spot Workshops: Karpenter](https://ec2spotworkshops.com/karpenter.html) - 
+
+- [EKS Workshop: Karpenter](https://www.eksworkshop.com/docs/autoscaling/compute/karpenter/) - 
+
+- [EKS Pod Execution Role](https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html) - 
+
+- [AWS KB: Fargate troubleshoot profile creation](https://aws.amazon.com/premiumsupport/knowledge-center/fargate-troubleshoot-profile-creation) - 
+
+- [HashiCorp Learn: Kubernetes CRD](https://learn.hashicorp.com/tutorials/terraform/kubernetes-crd-faas) - 
+
+- [AWS Batch: Spot Fleet IAM role](https://docs.aws.amazon.com/batch/latest/userguide/spot_fleet_IAM_role.html) - 
+
+- [AWS IAM: Service-linked roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/using-service-linked-roles.html) - 
+
+- [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/) - 
+
+- [Getting started with Terraform (EKS Blueprints)](https://aws-ia.github.io/terraform-aws-eks-blueprints/getting-started/) - 
+
+- [Getting started with eksctl for Karpenter](https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/) - 
+
+
+
 
 [<img src="https://cloudposse.com/logo-300x69.svg" height="32" align="right"/>](https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse-terraform-components/aws-eks-karpenter-controller&utm_content=)
+
