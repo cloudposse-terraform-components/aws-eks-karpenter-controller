@@ -33,7 +33,7 @@ components:
         # https://github.com/aws/karpenter/tree/main/charts/karpenter
         chart_repository: "oci://public.ecr.aws/karpenter"
         chart: "karpenter"
-        chart_version: "v1.6.0"
+        chart_version: "1.6.0"
         # Enable Karpenter to get advance notice of spot instances being terminated
         # See https://karpenter.sh/docs/concepts/#interruption
         interruption_handler_enabled: true
