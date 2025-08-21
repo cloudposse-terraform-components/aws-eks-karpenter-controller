@@ -57,7 +57,11 @@ components:
         settings:
           batch_idle_duration: "1s"
           batch_max_duration: "10s"
-          feature_gates:
+        # (Optional) "settings" which do not have an explicit mapping and may be subject to change between helm chart versions
+        extra_settings:
+          featureGates:
+            node_repair: false
+            reserved_capacity: true
             spot_to_spot_consolidation: true
         # The logging settings for the Karpenter controller
         logging:

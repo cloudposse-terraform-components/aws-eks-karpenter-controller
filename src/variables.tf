@@ -129,11 +129,6 @@ variable "settings" {
   type = object({
     batch_idle_duration = optional(string, "1s")
     batch_max_duration  = optional(string, "10s")
-    feature_gates = object({
-      node_repair = optional(bool, false)
-      reserved_capacity = optional(bool, true)
-      spot_to_spot_consolidation = optional(bool, false)
-    })
   })
   description = <<-EOT
   A subset of the settings for the Karpenter controller.
@@ -141,6 +136,27 @@ variable "settings" {
   `interruptionQueue`. All settings can be overridden by providing a `settings`
   section in the `chart_values` variable. The settings provided here are the ones
   mostly likely to be set to other than default values, and are provided here for convenience.
+  EOT
+  default     = {}
+  nullable    = false
+}
+
+variable "extra_settings" {
+  type        = any
+  description = <<-EOT
+  Additional settings to merge into the Karpenter controller settings.
+  This is useful for setting featureGates or other advanced settings that may
+  vary by chart version. These settings will be merged with the base settings
+  and take precedence over any conflicting keys.
+  
+  Example:
+  extra_settings = {
+    featureGates = {
+      nodeRepair = false
+      reservedCapacity = true
+      spotToSpotConsolidation = false
+    }
+  }
   EOT
   default     = {}
   nullable    = false
