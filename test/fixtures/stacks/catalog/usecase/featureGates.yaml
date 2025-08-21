@@ -34,7 +34,7 @@ components:
         settings:
           batch_idle_duration: "1s"
           batch_max_duration: "10s"
-        # "extra_settings" allows for chart version-specific settings like featureGates
+        # "additional_settings" allows for chart version-specific settings like featureGates
         additional_settings:
           featureGates:
             nodeRepair: false

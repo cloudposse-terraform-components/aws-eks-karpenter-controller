@@ -119,12 +119,13 @@ module "karpenter" {
           webhook    = var.logging.level.webhook
         }
       }
-      settings = merge({
+      settings = merge(
+        var.additional_settings,
+        {
         batchIdleDuration = var.settings.batch_idle_duration
         batchMaxDuration  = var.settings.batch_max_duration
         clusterName       = local.eks_cluster_id
         },
-        var.additional_settings,
         local.interruption_handler_enabled ? {
           interruptionQueue = local.interruption_handler_queue_name
         } : {}
