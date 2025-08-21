@@ -10,7 +10,7 @@ components:
         # https://github.com/aws/karpenter/tree/main/charts/karpenter
         chart_repository: "oci://public.ecr.aws/karpenter"
         chart: "karpenter"
-        chart_version: "1.3.2"
+        chart_version: "1.6.0"
         # Enable Karpenter to get advance notice of spot instances being terminated
         # See https://karpenter.sh/docs/concepts/#interruption
         interruption_handler_enabled: true
@@ -34,6 +34,12 @@ components:
         settings:
           batch_idle_duration: "1s"
           batch_max_duration: "10s"
+        # "additional_settings" allows for chart version-specific settings like featureGates
+        additional_settings:
+          featureGates:
+            nodeRepair: false
+            reservedCapacity: true
+            spotToSpotConsolidation: true
         # The logging settings for the Karpenter controller
         logging:
           enabled: true

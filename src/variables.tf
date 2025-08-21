@@ -141,6 +141,27 @@ variable "settings" {
   nullable    = false
 }
 
+variable "additional_settings" {
+  type        = any
+  description = <<-EOT
+  Additional settings to merge into the Karpenter controller settings.
+  This is useful for setting featureGates or other advanced settings that may
+  vary by chart version. These settings will be merged with the base settings
+  and take precedence over any conflicting keys.
+  
+  Example:
+  additional_settings = {
+    featureGates = {
+      nodeRepair = false
+      reservedCapacity = true
+      spotToSpotConsolidation = false
+    }
+  }
+  EOT
+  default     = {}
+  nullable    = false
+}
+
 variable "logging" {
   type = object({
     enabled = optional(bool, true)
