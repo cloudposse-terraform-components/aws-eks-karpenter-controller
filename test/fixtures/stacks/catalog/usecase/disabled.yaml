@@ -10,7 +10,7 @@ components:
         # https://github.com/aws/karpenter/tree/main/charts/karpenter
         chart_repository: "oci://public.ecr.aws/karpenter"
         chart: "karpenter"
-        chart_version: "v0.36.0"
+        chart_version: "0.36.0"
         # Enable Karpenter to get advance notice of spot instances being terminated
         # See https://karpenter.sh/docs/concepts/#interruption
         interruption_handler_enabled: true
@@ -24,7 +24,6 @@ components:
         cleanup_on_fail: true
         atomic: true
         wait: true
-        rbac_enabled: true
         # "karpenter-crd" can be installed as an independent helm chart to manage the lifecycle of Karpenter CRDs
         crd_chart_enabled: true
         crd_chart: "karpenter-crd"
