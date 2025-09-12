@@ -72,7 +72,7 @@ components:
         # https://github.com/aws/karpenter/tree/main/charts/karpenter
         chart_repository: "oci://public.ecr.aws/karpenter"
         chart: "karpenter"
-        chart_version: "0.36.0"
+        chart_version: "1.6.0"
         # Enable Karpenter to get advance notice of spot instances being terminated
         # See https://karpenter.sh/docs/concepts/#interruption
         interruption_handler_enabled: true
@@ -86,7 +86,6 @@ components:
         cleanup_on_fail: true
         atomic: true
         wait: true
-        rbac_enabled: true
         # "karpenter-crd" can be installed as an independent helm chart to manage the lifecycle of Karpenter CRDs
         crd_chart_enabled: true
         crd_chart: "karpenter-crd"
@@ -97,6 +96,12 @@ components:
         settings:
           batch_idle_duration: "1s"
           batch_max_duration: "10s"
+        # (Optional) "settings" which do not have an explicit mapping and may be subject to change between helm chart versions
+        additional_settings:
+          featureGates:
+            nodeRepair: false
+            reservedCapacity: true
+            spotToSpotConsolidation: true
         # The logging settings for the Karpenter controller
         logging:
           enabled: true
@@ -419,6 +424,7 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_additional_settings"></a> [additional\_settings](#input\_additional\_settings) | Additional settings to merge into the Karpenter controller settings.<br/>This is useful for setting featureGates or other advanced settings that may<br/>vary by chart version. These settings will be merged with the base settings<br/>and take precedence over any conflicting keys.<br/><br/>Example:<br/>additional\_settings = {<br/>  featureGates = {<br/>    nodeRepair = false<br/>    reservedCapacity = true<br/>    spotToSpotConsolidation = false<br/>  }<br/>} | `any` | `{}` | no |
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional key-value pairs to add to each map in `tags_as_list_of_maps`. Not added to `tags` or `id`.<br/>This is for some rare cases where resources want additional configuration of tags<br/>and therefore take a list of maps with tag key, value, and additional configuration. | `map(string)` | `{}` | no |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | If set, installation process purges chart on fail. The wait flag will be set automatically if atomic is used | `bool` | `true` | no |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | ID element. Additional attributes (e.g. `workers` or `cluster`) to add to `id`,<br/>in the order they appear in the list. New attributes are appended to the<br/>end of the list. The elements of the list are joined by the `delimiter`<br/>and treated as a single ID element. | `list(string)` | `[]` | no |
