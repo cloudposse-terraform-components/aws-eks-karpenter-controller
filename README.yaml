@@ -318,6 +318,133 @@ usage: |-
   is recommended. `var.crd_chart_enabled` defaults to `false` to preserve backward compatibility with older versions of
   this component.)
 
+  ## Using Direct EKS Cluster Variables (Recommended)
+
+  This component supports two methods for obtaining EKS cluster information, controlled by the
+  `remote_state_enabled` variable:
+
+  1. **Direct Variables (Recommended)**: Set `remote_state_enabled: false` and pass EKS cluster details directly via input variables
+  2. **Remote State (Default, Deprecated)**: Set `remote_state_enabled: true` (default) to fetch EKS cluster details from Terraform remote state using `eks_component_name`
+
+  ### Direct Variables Approach
+
+  The recommended approach is to provide EKS cluster information directly by setting `remote_state_enabled: false`.
+  This removes the dependency on Cloud Posse's remote state module and gives you more flexibility in how you
+  manage your infrastructure.
+
+  Required variables when `remote_state_enabled` is `false`:
+  - `eks_cluster_id` - The EKS cluster ID (name)
+  - `eks_cluster_arn` - The EKS cluster ARN
+  - `eks_cluster_endpoint` - The EKS cluster API endpoint URL
+  - `eks_cluster_certificate_authority_data` - The base64 encoded certificate data
+  - `eks_cluster_identity_oidc_issuer` - The OIDC Identity issuer for the EKS cluster
+  - `karpenter_node_role_arn` - The ARN of the IAM role for Karpenter nodes
+
+  Example configuration using direct variables:
+
+  ```yaml
+  components:
+    terraform:
+      eks/karpenter:
+        vars:
+          enabled: true
+          name: "karpenter"
+          # Disable remote state and use direct EKS cluster configuration
+          remote_state_enabled: false
+          eks_cluster_id: "my-eks-cluster"
+          eks_cluster_arn: "arn:aws:eks:us-east-1:123456789012:cluster/my-eks-cluster"
+          eks_cluster_endpoint: "https://ABCDEF1234567890.gr7.us-east-1.eks.amazonaws.com"
+          eks_cluster_certificate_authority_data: "LS0tLS1CRUdJTi..."
+          eks_cluster_identity_oidc_issuer: "https://oidc.eks.us-east-1.amazonaws.com/id/ABCDEF1234567890"
+          karpenter_node_role_arn: "arn:aws:iam::123456789012:role/my-eks-cluster-karpenter-node"
+          # ... other karpenter configuration
+          chart_repository: "oci://public.ecr.aws/karpenter"
+          chart: "karpenter"
+          chart_version: "1.6.0"
+  ```
+
+  You can obtain these values from your EKS cluster's Terraform outputs or via AWS CLI:
+
+  ```bash
+  # Get cluster info
+  aws eks describe-cluster --name my-eks-cluster --query 'cluster.{
+    endpoint: endpoint,
+    arn: arn,
+    certificateAuthority: certificateAuthority.data,
+    oidcIssuer: identity.oidc.issuer
+  }'
+  ```
+
+  ### Migrating from Remote State
+
+  If you're currently using the default `remote_state_enabled: true` with `eks_component_name` to fetch
+  EKS cluster information from remote state, you can migrate to direct variables by:
+
+  1. Get the current values from your EKS cluster's Terraform state or AWS console
+  2. Set `remote_state_enabled: false` in your stack configuration
+  3. Add the direct variable values to your stack configuration
+
+  > [!NOTE]
+  > When `remote_state_enabled` is `false`, all six direct EKS cluster variables are required.
+  > Terraform will fail validation if any are missing.
+
+  ### Using Atmos State Functions (Recommended)
+
+  When using [Atmos](https://atmos.tools), you can use the `!terraform.state` function to read
+  EKS cluster outputs from another component's Terraform state and pass them as variables.
+  This is the recommended approach as it keeps state lookups in your stack configuration
+  rather than in Terraform code.
+
+  ```yaml
+  components:
+    terraform:
+      eks/karpenter:
+        vars:
+          enabled: true
+          name: "karpenter"
+          # Disable internal remote state lookup
+          remote_state_enabled: false
+          # Use Atmos !terraform.state to read values from eks/cluster component
+          eks_cluster_id: !terraform.state eks/cluster eks_cluster_id
+          eks_cluster_arn: !terraform.state eks/cluster eks_cluster_arn
+          eks_cluster_endpoint: !terraform.state eks/cluster eks_cluster_endpoint
+          eks_cluster_certificate_authority_data: !terraform.state eks/cluster eks_cluster_certificate_authority_data
+          eks_cluster_identity_oidc_issuer: !terraform.state eks/cluster eks_cluster_identity_oidc_issuer
+          karpenter_node_role_arn: !terraform.state eks/cluster karpenter_iam_role_arn
+          # ... other karpenter configuration
+          chart_repository: "oci://public.ecr.aws/karpenter"
+          chart: "karpenter"
+          chart_version: "1.6.0"
+  ```
+
+  This approach:
+  - Keeps Terraform code clean without internal remote state dependencies
+  - Uses Atmos native state functions for cross-component references
+  - Works seamlessly with Atmos stack inheritance and overrides
+  - Provides better visibility into component dependencies in stack configuration
+
+  For more information on `!terraform.state`, see the
+  [Atmos documentation](https://atmos.tools/core-concepts/stacks/templating/functions/terraform.state/).
+
+  ### Remote State Approach (Default, Deprecated)
+
+  > [!WARNING]
+  > The `remote_state_enabled: true` setting and `eks_component_name` variable are deprecated and will
+  > be removed in a future version. Please migrate to using direct EKS cluster variables.
+
+  The default (but deprecated) approach uses Cloud Posse's remote state module to fetch EKS cluster information:
+
+  ```yaml
+  components:
+    terraform:
+      eks/karpenter:
+        vars:
+          enabled: true
+          # remote_state_enabled defaults to true (deprecated)
+          eks_component_name: "eks/cluster-blue"
+          # ... other configuration
+  ```
+
   ## Troubleshooting
 
   For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/)
