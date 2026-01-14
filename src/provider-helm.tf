@@ -141,14 +141,14 @@ locals {
   # When remote_state_enabled is false, direct variables are required (enforced by validation)
   # When remote_state_enabled is true, values come from remote state
   certificate_authority_data = local.kubeconfig_file_enabled ? null : (
-    local.remote_state_enabled ? module.eks.outputs.eks_cluster_certificate_authority_data : var.eks_cluster_certificate_authority_data
+    local.remote_state_enabled ? module.eks[0].outputs.eks_cluster_certificate_authority_data : var.eks_cluster_certificate_authority_data
   )
   cluster_ca_certificate = local.kubeconfig_file_enabled ? null : try(base64decode(local.certificate_authority_data), null)
 
-  eks_cluster_id = local.remote_state_enabled ? module.eks.outputs.eks_cluster_id : var.eks_cluster_id
+  eks_cluster_id = local.remote_state_enabled ? module.eks[0].outputs.eks_cluster_id : var.eks_cluster_id
 
   eks_cluster_endpoint = local.kubeconfig_file_enabled ? null : (
-    local.remote_state_enabled ? module.eks.outputs.eks_cluster_endpoint : var.eks_cluster_endpoint
+    local.remote_state_enabled ? module.eks[0].outputs.eks_cluster_endpoint : var.eks_cluster_endpoint
   )
 }
 

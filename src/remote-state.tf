@@ -37,7 +37,7 @@ module "eks" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
   version = "1.8.0"
 
-  enabled = local.remote_state_enabled
+  count = local.remote_state_enabled ? 1 : 0
 
   component = var.eks_component_name
 
