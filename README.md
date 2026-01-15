@@ -363,82 +363,18 @@ To deploy the `karpenter-crd` helm chart, set `var.crd_chart_enabled` to `true`.
 is recommended. `var.crd_chart_enabled` defaults to `false` to preserve backward compatibility with older versions of
 this component.)
 
-## Using Direct EKS Cluster Variables (Recommended)
+## EKS Cluster Configuration
 
 This component supports two methods for obtaining EKS cluster information, controlled by the
-`remote_state_enabled` variable:
+`account_map_enabled` variable:
 
-1. **Direct Variables (Recommended)**: Set `remote_state_enabled: false` and pass EKS cluster details directly via input variables
-2. **Remote State (Default, Deprecated)**: Set `remote_state_enabled: true` (default) to fetch EKS cluster details from Terraform remote state using `eks_component_name`
-
-### Direct Variables Approach
-
-The recommended approach is to provide EKS cluster information directly by setting `remote_state_enabled: false`.
-This removes the dependency on Cloud Posse's remote state module and gives you more flexibility in how you
-manage your infrastructure.
-
-Required variables when `remote_state_enabled` is `false`:
-- `eks_cluster_id` - The EKS cluster ID (name)
-- `eks_cluster_arn` - The EKS cluster ARN
-- `eks_cluster_endpoint` - The EKS cluster API endpoint URL
-- `eks_cluster_certificate_authority_data` - The base64 encoded certificate data
-- `eks_cluster_identity_oidc_issuer` - The OIDC Identity issuer for the EKS cluster
-- `karpenter_node_role_arn` - The ARN of the IAM role for Karpenter nodes
-
-Example configuration using direct variables:
-
-```yaml
-components:
-  terraform:
-    eks/karpenter:
-      vars:
-        enabled: true
-        name: "karpenter"
-        # Disable remote state and use direct EKS cluster configuration
-        remote_state_enabled: false
-        eks_cluster_id: "my-eks-cluster"
-        eks_cluster_arn: "arn:aws:eks:us-east-1:123456789012:cluster/my-eks-cluster"
-        eks_cluster_endpoint: "https://ABCDEF1234567890.gr7.us-east-1.eks.amazonaws.com"
-        eks_cluster_certificate_authority_data: "LS0tLS1CRUdJTi..."
-        eks_cluster_identity_oidc_issuer: "https://oidc.eks.us-east-1.amazonaws.com/id/ABCDEF1234567890"
-        karpenter_node_role_arn: "arn:aws:iam::123456789012:role/my-eks-cluster-karpenter-node"
-        # ... other karpenter configuration
-        chart_repository: "oci://public.ecr.aws/karpenter"
-        chart: "karpenter"
-        chart_version: "1.6.0"
-```
-
-You can obtain these values from your EKS cluster's Terraform outputs or via AWS CLI:
-
-```bash
-# Get cluster info
-aws eks describe-cluster --name my-eks-cluster --query 'cluster.{
-  endpoint: endpoint,
-  arn: arn,
-  certificateAuthority: certificateAuthority.data,
-  oidcIssuer: identity.oidc.issuer
-}'
-```
-
-### Migrating from Remote State
-
-If you're currently using the default `remote_state_enabled: true` with `eks_component_name` to fetch
-EKS cluster information from remote state, you can migrate to direct variables by:
-
-1. Get the current values from your EKS cluster's Terraform state or AWS console
-2. Set `remote_state_enabled: false` in your stack configuration
-3. Add the direct variable values to your stack configuration
-
-> [!NOTE]
-> When `remote_state_enabled` is `false`, all six direct EKS cluster variables are required.
-> Terraform will fail validation if any are missing.
+1. **Direct Variables (Recommended)**: Set `account_map_enabled: false` and provide EKS cluster details via the `eks` object variable
+2. **Internal Remote State (Default)**: Set `account_map_enabled: true` (default) to fetch EKS cluster details from Terraform remote state using `eks_component_name`
 
 ### Using Atmos State Functions (Recommended)
 
 When using [Atmos](https://atmos.tools), you can use the `!terraform.state` function to read
 EKS cluster outputs from another component's Terraform state and pass them as variables.
-This is the recommended approach as it keeps state lookups in your stack configuration
-rather than in Terraform code.
 
 ```yaml
 components:
@@ -447,37 +383,25 @@ components:
       vars:
         enabled: true
         name: "karpenter"
-        # Disable internal remote state lookup
-        remote_state_enabled: false
-        # Use Atmos !terraform.state to read values from eks/cluster component
-        eks_cluster_id: !terraform.state eks/cluster eks_cluster_id
-        eks_cluster_arn: !terraform.state eks/cluster eks_cluster_arn
-        eks_cluster_endpoint: !terraform.state eks/cluster eks_cluster_endpoint
-        eks_cluster_certificate_authority_data: !terraform.state eks/cluster eks_cluster_certificate_authority_data
-        eks_cluster_identity_oidc_issuer: !terraform.state eks/cluster eks_cluster_identity_oidc_issuer
-        karpenter_node_role_arn: !terraform.state eks/cluster karpenter_iam_role_arn
-        # ... other karpenter configuration
+        account_map_enabled: false
+        eks:
+          eks_cluster_id: !terraform.state eks/cluster eks_cluster_id
+          eks_cluster_arn: !terraform.state eks/cluster eks_cluster_arn
+          eks_cluster_endpoint: !terraform.state eks/cluster eks_cluster_endpoint
+          eks_cluster_certificate_authority_data: !terraform.state eks/cluster eks_cluster_certificate_authority_data
+          eks_cluster_identity_oidc_issuer: !terraform.state eks/cluster eks_cluster_identity_oidc_issuer
+          karpenter_iam_role_arn: !terraform.state eks/cluster karpenter_iam_role_arn
         chart_repository: "oci://public.ecr.aws/karpenter"
         chart: "karpenter"
         chart_version: "1.6.0"
 ```
 
-This approach:
-- Keeps Terraform code clean without internal remote state dependencies
-- Uses Atmos native state functions for cross-component references
-- Works seamlessly with Atmos stack inheritance and overrides
-- Provides better visibility into component dependencies in stack configuration
-
 For more information on `!terraform.state`, see the
 [Atmos documentation](https://atmos.tools/core-concepts/stacks/templating/functions/terraform.state/).
 
-### Remote State Approach (Default, Deprecated)
+### Direct Variables Approach
 
-> [!WARNING]
-> The `remote_state_enabled: true` setting and `eks_component_name` variable are deprecated and will
-> be removed in a future version. Please migrate to using direct EKS cluster variables.
-
-The default (but deprecated) approach uses Cloud Posse's remote state module to fetch EKS cluster information:
+You can also provide EKS cluster information directly:
 
 ```yaml
 components:
@@ -485,9 +409,32 @@ components:
     eks/karpenter:
       vars:
         enabled: true
-        # remote_state_enabled defaults to true (deprecated)
+        name: "karpenter"
+        account_map_enabled: false
+        eks:
+          eks_cluster_id: "my-eks-cluster"
+          eks_cluster_arn: "arn:aws:eks:us-east-1:123456789012:cluster/my-eks-cluster"
+          eks_cluster_endpoint: "https://ABCDEF1234567890.gr7.us-east-1.eks.amazonaws.com"
+          eks_cluster_certificate_authority_data: "LS0tLS1CRUdJTi..."
+          eks_cluster_identity_oidc_issuer: "https://oidc.eks.us-east-1.amazonaws.com/id/ABCDEF1234567890"
+          karpenter_iam_role_arn: "arn:aws:iam::123456789012:role/my-eks-cluster-karpenter-node"
+        chart_repository: "oci://public.ecr.aws/karpenter"
+        chart: "karpenter"
+        chart_version: "1.6.0"
+```
+
+### Internal Remote State Approach (Default)
+
+The default approach uses Cloud Posse's remote state module to fetch EKS cluster information:
+
+```yaml
+components:
+  terraform:
+    eks/karpenter:
+      vars:
+        enabled: true
+        # account_map_enabled defaults to true
         eks_component_name: "eks/cluster-blue"
-        # ... other configuration
 ```
 
 ## Troubleshooting
@@ -522,7 +469,6 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.9.0, < 6.0.0 |
-| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
 
@@ -544,7 +490,6 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | [aws_iam_role_policy_attachment.v1alpha](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_sqs_queue.interruption_handler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue_policy.interruption_handler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_policy) | resource |
-| [terraform_data.validate_eks_config](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [aws_eks_cluster_auth.eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eks_cluster_auth) | data source |
 | [aws_iam_policy_document.interruption_handler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
@@ -568,19 +513,15 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | <a name="input_crd_chart_enabled"></a> [crd\_chart\_enabled](#input\_crd\_chart\_enabled) | `karpenter-crd` can be installed as an independent helm chart to manage the lifecycle of Karpenter CRDs. Set to `true` to install this CRD helm chart before the primary karpenter chart. | `bool` | `false` | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between ID elements.<br/>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br/>Map of maps. Keys are names of descriptors. Values are maps of the form<br/>`{<br/>  format = string<br/>  labels = list(string)<br/>}`<br/>(Type is `any` so the map values can later be enhanced to provide additional options.)<br/>`format` is a Terraform format string to be passed to the `format()` function.<br/>`labels` is a list of labels, in order, to pass to `format()` function.<br/>Label values will be normalized before being passed to `format()` so they will be<br/>identical to how they appear in `id`.<br/>Default is `{}` (`descriptors` output will be empty). | `any` | `{}` | no |
-| <a name="input_eks_cluster_arn"></a> [eks\_cluster\_arn](#input\_eks\_cluster\_arn) | The EKS cluster ARN. Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
-| <a name="input_eks_cluster_certificate_authority_data"></a> [eks\_cluster\_certificate\_authority\_data](#input\_eks\_cluster\_certificate\_authority\_data) | The base64 encoded certificate data required to communicate with the EKS cluster. Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
-| <a name="input_eks_cluster_endpoint"></a> [eks\_cluster\_endpoint](#input\_eks\_cluster\_endpoint) | The EKS cluster endpoint URL. Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
-| <a name="input_eks_cluster_id"></a> [eks\_cluster\_id](#input\_eks\_cluster\_id) | The EKS cluster ID (name). Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
-| <a name="input_eks_cluster_identity_oidc_issuer"></a> [eks\_cluster\_identity\_oidc\_issuer](#input\_eks\_cluster\_identity\_oidc\_issuer) | The OIDC Identity issuer for the EKS cluster. Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
-| <a name="input_eks_component_name"></a> [eks\_component\_name](#input\_eks\_component\_name) | The name of the eks component. Used to fetch EKS cluster information from remote state<br/>when `remote_state_enabled` is `true`.<br/><br/>DEPRECATED: This variable (along with remote\_state\_enabled=true) is deprecated and<br/>will be removed in a future version. Set `remote_state_enabled = false` and use<br/>the direct EKS cluster input variables instead. | `string` | `"eks/cluster"` | no |
+| <a name="input_account_map_enabled"></a> [account\_map\_enabled](#input\_account\_map\_enabled) | Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration. | `bool` | `true` | no |
+| <a name="input_eks"></a> [eks](#input\_eks) | EKS cluster configuration. Required when `account_map_enabled` is `false`. | `object` | `{}` | no |
+| <a name="input_eks_component_name"></a> [eks\_component\_name](#input\_eks\_component\_name) | The name of the eks component. Used when `account_map_enabled` is `true`. | `string` | `"eks/cluster"` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
 | <a name="input_helm_manifest_experiment_enabled"></a> [helm\_manifest\_experiment\_enabled](#input\_helm\_manifest\_experiment\_enabled) | Enable storing of the rendered manifest for helm\_release so the full diff of what is changing can been seen in the plan | `bool` | `false` | no |
 | <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br/>Set to `0` for unlimited length.<br/>Set to `null` for keep the existing setting, which defaults to `0`.<br/>Does not affect `id_full`. | `number` | `null` | no |
 | <a name="input_interruption_handler_enabled"></a> [interruption\_handler\_enabled](#input\_interruption\_handler\_enabled) | If `true`, deploy a SQS queue and Event Bridge rules to enable interruption handling by Karpenter.<br/>  https://karpenter.sh/docs/concepts/disruption/#interruption | `bool` | `true` | no |
 | <a name="input_interruption_queue_message_retention"></a> [interruption\_queue\_message\_retention](#input\_interruption\_queue\_message\_retention) | The message retention in seconds for the interruption handler SQS queue. | `number` | `300` | no |
-| <a name="input_karpenter_node_role_arn"></a> [karpenter\_node\_role\_arn](#input\_karpenter\_node\_role\_arn) | The ARN of the IAM role for Karpenter nodes. Required when `remote_state_enabled` is `false`. | `string` | `null` | no |
 | <a name="input_kube_data_auth_enabled"></a> [kube\_data\_auth\_enabled](#input\_kube\_data\_auth\_enabled) | If `true`, use an `aws_eks_cluster_auth` data source to authenticate to the EKS cluster.<br/>Disabled by `kubeconfig_file_enabled` or `kube_exec_auth_enabled`. | `bool` | `false` | no |
 | <a name="input_kube_exec_auth_aws_profile"></a> [kube\_exec\_auth\_aws\_profile](#input\_kube\_exec\_auth\_aws\_profile) | The AWS config profile for `aws eks get-token` to use | `string` | `""` | no |
 | <a name="input_kube_exec_auth_aws_profile_enabled"></a> [kube\_exec\_auth\_aws\_profile\_enabled](#input\_kube\_exec\_auth\_aws\_profile\_enabled) | If `true`, pass `kube_exec_auth_aws_profile` as the `profile` to `aws eks get-token` | `bool` | `false` | no |
@@ -603,7 +544,6 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region | `string` | n/a | yes |
-| <a name="input_remote_state_enabled"></a> [remote\_state\_enabled](#input\_remote\_state\_enabled) | If `true`, fetch EKS cluster information from Terraform remote state using `eks_component_name`.<br/>If `false`, use direct EKS cluster input variables instead.<br/><br/>When set to `false`, the following variables are required:<br/>- var.eks\_cluster\_id<br/>- var.eks\_cluster\_arn<br/>- var.eks\_cluster\_endpoint<br/>- var.eks\_cluster\_certificate\_authority\_data<br/>- var.eks\_cluster\_identity\_oidc\_issuer<br/>- var.karpenter\_node\_role\_arn | `bool` | `true` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Karpenter controller replicas to run | `number` | `2` | no |
 | <a name="input_resources"></a> [resources](#input\_resources) | The CPU and memory of the deployment's limits and requests | <pre>object({<br/>    limits = object({<br/>      cpu    = string<br/>      memory = string<br/>    })<br/>    requests = object({<br/>      cpu    = string<br/>      memory = string<br/>    })<br/>  })</pre> | n/a | yes |
 | <a name="input_settings"></a> [settings](#input\_settings) | A subset of the settings for the Karpenter controller.<br/>Some settings are implicitly set by this component, such as `clusterName` and<br/>`interruptionQueue`. All settings can be overridden by providing a `settings`<br/>section in the `chart_values` variable. The settings provided here are the ones<br/>mostly likely to be set to other than default values, and are provided here for convenience. | <pre>object({<br/>    batch_idle_duration = optional(string, "1s")<br/>    batch_max_duration  = optional(string, "10s")<br/>  })</pre> | `{}` | no |

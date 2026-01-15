@@ -81,71 +81,29 @@ variable "chart_values" {
   default     = {}
 }
 
-variable "remote_state_enabled" {
+variable "account_map_enabled" {
   type        = bool
-  description = <<-EOT
-  If `true`, fetch EKS cluster information from Terraform remote state using `eks_component_name`.
-  If `false`, use direct EKS cluster input variables instead.
-
-  When set to `false`, the following variables are required:
-  - var.eks_cluster_id
-  - var.eks_cluster_arn
-  - var.eks_cluster_endpoint
-  - var.eks_cluster_certificate_authority_data
-  - var.eks_cluster_identity_oidc_issuer
-  - var.karpenter_node_role_arn
-  EOT
+  description = "Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration."
   default     = true
-  nullable    = false
 }
 
 variable "eks_component_name" {
   type        = string
-  description = <<-EOT
-  The name of the eks component. Used to fetch EKS cluster information from remote state
-  when `remote_state_enabled` is `true`.
-
-  DEPRECATED: This variable (along with remote_state_enabled=true) is deprecated and
-  will be removed in a future version. Set `remote_state_enabled = false` and use
-  the direct EKS cluster input variables instead.
-  EOT
+  description = "The name of the eks component. Used when `account_map_enabled` is `true`."
   default     = "eks/cluster"
 }
 
-variable "eks_cluster_id" {
-  type        = string
-  description = "The EKS cluster ID (name). Required when `remote_state_enabled` is `false`."
-  default     = null
-}
-
-variable "eks_cluster_arn" {
-  type        = string
-  description = "The EKS cluster ARN. Required when `remote_state_enabled` is `false`."
-  default     = null
-}
-
-variable "eks_cluster_endpoint" {
-  type        = string
-  description = "The EKS cluster endpoint URL. Required when `remote_state_enabled` is `false`."
-  default     = null
-}
-
-variable "eks_cluster_certificate_authority_data" {
-  type        = string
-  description = "The base64 encoded certificate data required to communicate with the EKS cluster. Required when `remote_state_enabled` is `false`."
-  default     = null
-}
-
-variable "eks_cluster_identity_oidc_issuer" {
-  type        = string
-  description = "The OIDC Identity issuer for the EKS cluster. Required when `remote_state_enabled` is `false`."
-  default     = null
-}
-
-variable "karpenter_node_role_arn" {
-  type        = string
-  description = "The ARN of the IAM role for Karpenter nodes. Required when `remote_state_enabled` is `false`."
-  default     = null
+variable "eks" {
+  type = object({
+    eks_cluster_id                         = optional(string, "")
+    eks_cluster_arn                        = optional(string, "")
+    eks_cluster_endpoint                   = optional(string, "")
+    eks_cluster_certificate_authority_data = optional(string, "")
+    eks_cluster_identity_oidc_issuer       = optional(string, "")
+    karpenter_iam_role_arn                 = optional(string, "")
+  })
+  description = "EKS cluster configuration. Required when `account_map_enabled` is `false`."
+  default     = {}
 }
 
 variable "metrics_enabled" {
