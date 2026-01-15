@@ -363,6 +363,80 @@ To deploy the `karpenter-crd` helm chart, set `var.crd_chart_enabled` to `true`.
 is recommended. `var.crd_chart_enabled` defaults to `false` to preserve backward compatibility with older versions of
 this component.)
 
+## EKS Cluster Configuration
+
+This component supports two methods for obtaining EKS cluster information, controlled by the
+`account_map_enabled` variable:
+
+1. **Direct Variables (Recommended)**: Set `account_map_enabled: false` and provide EKS cluster details via the `eks` object variable
+2. **Internal Remote State (Default)**: Set `account_map_enabled: true` (default) to fetch EKS cluster details from Terraform remote state using `eks_component_name`
+
+### Using Atmos State Functions (Recommended)
+
+When using [Atmos](https://atmos.tools), you can use the `!terraform.state` function to read
+EKS cluster outputs from another component's Terraform state and pass them as variables.
+
+```yaml
+components:
+  terraform:
+    eks/karpenter:
+      vars:
+        enabled: true
+        name: "karpenter"
+        account_map_enabled: false
+        eks:
+          eks_cluster_id: !terraform.state eks/cluster eks_cluster_id
+          eks_cluster_arn: !terraform.state eks/cluster eks_cluster_arn
+          eks_cluster_endpoint: !terraform.state eks/cluster eks_cluster_endpoint
+          eks_cluster_certificate_authority_data: !terraform.state eks/cluster eks_cluster_certificate_authority_data
+          eks_cluster_identity_oidc_issuer: !terraform.state eks/cluster eks_cluster_identity_oidc_issuer
+          karpenter_iam_role_arn: !terraform.state eks/cluster karpenter_iam_role_arn
+        chart_repository: "oci://public.ecr.aws/karpenter"
+        chart: "karpenter"
+        chart_version: "1.6.0"
+```
+
+For more information on `!terraform.state`, see the
+[Atmos documentation](https://atmos.tools/core-concepts/stacks/templating/functions/terraform.state/).
+
+### Direct Variables Approach
+
+You can also provide EKS cluster information directly:
+
+```yaml
+components:
+  terraform:
+    eks/karpenter:
+      vars:
+        enabled: true
+        name: "karpenter"
+        account_map_enabled: false
+        eks:
+          eks_cluster_id: "my-eks-cluster"
+          eks_cluster_arn: "arn:aws:eks:us-east-1:123456789012:cluster/my-eks-cluster"
+          eks_cluster_endpoint: "https://ABCDEF1234567890.gr7.us-east-1.eks.amazonaws.com"
+          eks_cluster_certificate_authority_data: "LS0tLS1CRUdJTi..."
+          eks_cluster_identity_oidc_issuer: "https://oidc.eks.us-east-1.amazonaws.com/id/ABCDEF1234567890"
+          karpenter_iam_role_arn: "arn:aws:iam::123456789012:role/my-eks-cluster-karpenter-node"
+        chart_repository: "oci://public.ecr.aws/karpenter"
+        chart: "karpenter"
+        chart_version: "1.6.0"
+```
+
+### Internal Remote State Approach (Default)
+
+The default approach uses Cloud Posse's remote state module to fetch EKS cluster information:
+
+```yaml
+components:
+  terraform:
+    eks/karpenter:
+      vars:
+        enabled: true
+        # account_map_enabled defaults to true
+        eks_component_name: "eks/cluster-blue"
+```
+
 ## Troubleshooting
 
 For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/)
@@ -439,7 +513,9 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | <a name="input_crd_chart_enabled"></a> [crd\_chart\_enabled](#input\_crd\_chart\_enabled) | `karpenter-crd` can be installed as an independent helm chart to manage the lifecycle of Karpenter CRDs. Set to `true` to install this CRD helm chart before the primary karpenter chart. | `bool` | `false` | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between ID elements.<br/>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br/>Map of maps. Keys are names of descriptors. Values are maps of the form<br/>`{<br/>  format = string<br/>  labels = list(string)<br/>}`<br/>(Type is `any` so the map values can later be enhanced to provide additional options.)<br/>`format` is a Terraform format string to be passed to the `format()` function.<br/>`labels` is a list of labels, in order, to pass to `format()` function.<br/>Label values will be normalized before being passed to `format()` so they will be<br/>identical to how they appear in `id`.<br/>Default is `{}` (`descriptors` output will be empty). | `any` | `{}` | no |
-| <a name="input_eks_component_name"></a> [eks\_component\_name](#input\_eks\_component\_name) | The name of the eks component | `string` | `"eks/cluster"` | no |
+| <a name="input_account_map_enabled"></a> [account\_map\_enabled](#input\_account\_map\_enabled) | Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration. | `bool` | `true` | no |
+| <a name="input_eks"></a> [eks](#input\_eks) | EKS cluster configuration. Required when `account_map_enabled` is `false`. | `object` | `{}` | no |
+| <a name="input_eks_component_name"></a> [eks\_component\_name](#input\_eks\_component\_name) | The name of the eks component. Used when `account_map_enabled` is `true`. | `string` | `"eks/cluster"` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
 | <a name="input_helm_manifest_experiment_enabled"></a> [helm\_manifest\_experiment\_enabled](#input\_helm\_manifest\_experiment\_enabled) | Enable storing of the rendered manifest for helm\_release so the full diff of what is changing can been seen in the plan | `bool` | `false` | no |

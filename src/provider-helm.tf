@@ -138,12 +138,11 @@ locals {
     "--role-arn", local.kube_exec_auth_role_arn
   ] : []
 
-  # Provide dummy configuration for the case where the EKS cluster is not available.
-  certificate_authority_data = local.kubeconfig_file_enabled ? null : try(module.eks.outputs.eks_cluster_certificate_authority_data, null)
+  # EKS values come from module.eks.outputs - when bypassed, returns defaults (direct variables)
+  certificate_authority_data = local.kubeconfig_file_enabled ? null : module.eks.outputs.eks_cluster_certificate_authority_data
   cluster_ca_certificate     = local.kubeconfig_file_enabled ? null : try(base64decode(local.certificate_authority_data), null)
-  # Use coalesce+try to handle both the case where the output is missing and the case where it is empty.
-  eks_cluster_id       = coalesce(try(module.eks.outputs.eks_cluster_id, ""), "missing")
-  eks_cluster_endpoint = local.kubeconfig_file_enabled ? null : try(module.eks.outputs.eks_cluster_endpoint, "")
+  eks_cluster_id             = module.eks.outputs.eks_cluster_id
+  eks_cluster_endpoint       = local.kubeconfig_file_enabled ? null : module.eks.outputs.eks_cluster_endpoint
 }
 
 data "aws_eks_cluster_auth" "eks" {
