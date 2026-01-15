@@ -16,7 +16,7 @@ module "eks" {
     eks_cluster_id                         = coalesce(var.eks.eks_cluster_id, "deleted")
     eks_cluster_arn                        = coalesce(var.eks.eks_cluster_arn, "deleted")
     eks_cluster_endpoint                   = coalesce(var.eks.eks_cluster_endpoint, "deleted")
-    eks_cluster_certificate_authority_data = coalesce(var.eks.eks_cluster_certificate_authority_data, "")
+    eks_cluster_certificate_authority_data = var.eks.eks_cluster_certificate_authority_data
     eks_cluster_identity_oidc_issuer       = coalesce(var.eks.eks_cluster_identity_oidc_issuer, "deleted")
     karpenter_iam_role_arn                 = coalesce(var.eks.karpenter_iam_role_arn, "deleted")
   }
