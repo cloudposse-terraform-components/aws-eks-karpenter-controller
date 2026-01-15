@@ -45,13 +45,14 @@ module "eks" {
 
   context = module.this.context
 
-  # Attempt to allow this component to be deleted from Terraform state even after the EKS cluster has been deleted
+  # When bypassed, use direct variables as defaults
+  # When not bypassed but remote state is missing, fall back to "deleted" for graceful degradation
   defaults = {
-    eks_cluster_id                         = "deleted"
-    eks_cluster_arn                        = "deleted"
-    eks_cluster_endpoint                   = "deleted"
-    eks_cluster_certificate_authority_data = ""
-    eks_cluster_identity_oidc_issuer       = "deleted"
-    karpenter_iam_role_arn                 = "deleted"
+    eks_cluster_id                         = coalesce(var.eks_cluster_id, "deleted")
+    eks_cluster_arn                        = coalesce(var.eks_cluster_arn, "deleted")
+    eks_cluster_endpoint                   = coalesce(var.eks_cluster_endpoint, "deleted")
+    eks_cluster_certificate_authority_data = coalesce(var.eks_cluster_certificate_authority_data, "")
+    eks_cluster_identity_oidc_issuer       = coalesce(var.eks_cluster_identity_oidc_issuer, "deleted")
+    karpenter_iam_role_arn                 = coalesce(var.karpenter_node_role_arn, "deleted")
   }
 }
