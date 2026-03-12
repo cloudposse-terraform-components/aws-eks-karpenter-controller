@@ -1,19 +1,37 @@
-provider "aws" {
-  region = var.region
+# This is the default providers.tf when account map is disabled.
 
-  # Profile is deprecated in favor of terraform_role_arn. When profiles are not in use, terraform_profile_name is null.
-  profile = module.iam_roles.terraform_profile_name
+variable "account_map_enabled" {
+  type        = bool
+  description = "Enable the account map component"
+  default     = false
+}
 
-  dynamic "assume_role" {
-    # module.iam_roles.terraform_role_arn may be null, in which case do not assume a role.
-    for_each = compact([module.iam_roles.terraform_role_arn])
-    content {
-      role_arn = assume_role.value
-    }
+variable "account_map" {
+  type = object({
+    full_account_map              = map(string)
+    audit_account_account_name    = optional(string, "")
+    root_account_account_name     = optional(string, "")
+    identity_account_account_name = optional(string, "")
+    aws_partition                 = optional(string, "aws")
+    iam_role_arn_templates        = optional(map(string), {})
+  })
+  description = "Map of account names (tenant-stage format) to account IDs. Used to verify we're targeting the correct AWS account. Optional attributes support component-specific functionality (e.g., audit_account_account_name for cloudtrail, root_account_account_name for aws-sso)."
+  default = {
+    full_account_map              = {}
+    audit_account_account_name    = ""
+    root_account_account_name     = ""
+    identity_account_account_name = ""
+    aws_partition                 = "aws"
+    iam_role_arn_templates        = {}
   }
 }
 
+provider "aws" {
+  region = var.region
+}
+
+# dummy module to satisfy the module dependency
 module "iam_roles" {
-  source  = "../../account-map/modules/iam-roles"
+  source  = "cloudposse/label/null"
   context = module.this.context
 }
