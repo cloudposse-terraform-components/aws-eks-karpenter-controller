@@ -80,13 +80,6 @@ variable "chart_values" {
   description = "Additional values to yamlencode as `helm_release` values"
   default     = {}
 }
-
-variable "account_map_enabled" {
-  type        = bool
-  description = "Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration."
-  default     = true
-}
-
 variable "eks_component_name" {
   type        = string
   description = "The name of the eks component. Used when `account_map_enabled` is `true`."
