@@ -81,10 +81,29 @@ variable "chart_values" {
   default     = {}
 }
 
+variable "account_map_enabled" {
+  type        = bool
+  description = "Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration."
+  default     = true
+}
+
 variable "eks_component_name" {
   type        = string
-  description = "The name of the eks component"
+  description = "The name of the eks component. Used when `account_map_enabled` is `true`."
   default     = "eks/cluster"
+}
+
+variable "eks" {
+  type = object({
+    eks_cluster_id                         = optional(string, "")
+    eks_cluster_arn                        = optional(string, "")
+    eks_cluster_endpoint                   = optional(string, "")
+    eks_cluster_certificate_authority_data = optional(string, "")
+    eks_cluster_identity_oidc_issuer       = optional(string, "")
+    karpenter_iam_role_arn                 = optional(string, "")
+  })
+  description = "EKS cluster configuration. Required when `account_map_enabled` is `false`."
+  default     = {}
 }
 
 variable "metrics_enabled" {

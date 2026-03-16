@@ -8,11 +8,10 @@ locals {
   aws_partition = coalesce(one(data.aws_partition.current[*].partition), "aws")
 
   # eks_cluster_id is defined in provider-helm.tf
-  # eks_cluster_id = module.eks.outputs.eks_cluster_id
+  # EKS values come from module.eks.outputs - when bypassed, returns defaults (direct variables)
   eks_cluster_arn                  = module.eks.outputs.eks_cluster_arn
   eks_cluster_identity_oidc_issuer = module.eks.outputs.eks_cluster_identity_oidc_issuer
-
-  karpenter_node_role_arn = module.eks.outputs.karpenter_iam_role_arn
+  karpenter_node_role_arn          = module.eks.outputs.karpenter_iam_role_arn
 
   # Prior to Karpenter v0.32.0 (the v1Alpha APIs), Karpenter recommended using a dedicated namespace for Karpenter resources.
   # Starting with Karpenter v0.32.0, Karpenter recommends installing Karpenter resources in the kube-system namespace.
