@@ -14,5 +14,9 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = ">= 2.7.1, != 2.21.0"
     }
+    utils = {
+      source  = "cloudposse/utils"
+      version = ">= 1.7.1, != 1.4.0, < 1.32.0"
+    }
   }
 }
