@@ -531,6 +531,7 @@ For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://kar
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.9.0, < 6.0.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.0.0, < 3.0.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.7.1, != 2.21.0 |
+| <a name="requirement_utils"></a> [utils](#requirement\_utils) | >= 1.7.1, != 1.4.0, < 1.32.0 |
 
 ## Providers
 
