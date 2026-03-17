@@ -392,6 +392,74 @@ usage: |-
           eks_component_name: "eks/cluster-blue"
   ```
 
+  ## Atmos EKS Auth Integration (Native Provider Configuration)
+
+  As an alternative to using remote state or direct variables for provider authentication, you can use the
+  [Atmos `generate` block](https://atmos.tools/cli/commands/terraform/workdir/) to inject a Kubernetes and Helm provider
+  configuration at runtime using Atmos' native EKS auth integration.
+
+  This approach generates a `provider-helm.tf` file into the Terraform [workdir](https://atmos.tools/cli/commands/terraform/workdir/)
+  at plan/apply time. The file is never committed to git and overrides the vendor's provider configuration with one that
+  authenticates via a local kubeconfig managed by Atmos.
+
+  Add the following to your stack config:
+
+  ```yaml
+  components:
+    terraform:
+      eks/karpenter:
+        terraform:
+          generate:
+            # Generate files into the Atmos workdir, not the component source directory.
+            # Files are created at runtime (plan/apply) and never committed to git.
+            # https://atmos.tools/cli/commands/terraform/workdir/
+            workdir: true
+
+            # Override the vendor's providers.tf with a generated provider block.
+            # We use the Atmos native EKS auth integration instead of AWS API calls.
+            "provider-helm.tf": |
+              provider "kubernetes" {
+                config_context = "auto-eks"
+                config_path = "~/.config/atmos/kube/config"
+              }
+              provider "helm" {
+                kubernetes {
+                  config_context = "auto-eks"
+                  config_path = "~/.config/atmos/kube/config"
+                }
+              }
+        vars:
+          enabled: true
+          account_map_enabled: false
+          eks:
+            eks_cluster_id: !terraform.state eks/cluster eks_cluster_id
+            eks_cluster_arn: !terraform.state eks/cluster eks_cluster_arn
+            eks_cluster_endpoint: !terraform.state eks/cluster eks_cluster_endpoint
+            eks_cluster_certificate_authority_data: !terraform.state eks/cluster eks_cluster_certificate_authority_data
+            eks_cluster_identity_oidc_issuer: !terraform.state eks/cluster eks_cluster_identity_oidc_issuer
+            karpenter_iam_role_arn: !terraform.state eks/cluster karpenter_iam_role_arn
+  ```
+
+  When using this approach:
+
+  - The `config_context` value (e.g. `"auto-eks"`) **must match the `alias` you configure for the EKS integration
+    in your `atmos.yaml`**. For example:
+
+    ```yaml
+    # atmos.yaml
+    integrations:
+      eks:
+        - component: eks/cluster
+          alias: auto-eks   # <-- this value must match config_context above
+    ```
+
+    Atmos uses this alias to write a kubeconfig entry and set the active context before running Terraform.
+  - The kubeconfig is written to `~/.config/atmos/kube/config` by Atmos before `terraform plan`/`apply` runs.
+  - The `workdir: true` setting ensures the generated file lands in the Terraform working directory (where Terraform
+    actually executes), not in the vendored component source — so it is never accidentally committed.
+  - Set `account_map_enabled: false` and supply cluster details via `!terraform.state` functions so the component
+    does not attempt its own AWS API calls for provider auth.
+
   ## Troubleshooting
 
   For Karpenter issues, checkout the [Karpenter Troubleshooting Guide](https://karpenter.sh/docs/troubleshooting/)

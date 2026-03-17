@@ -17,3 +17,9 @@ module "iam_roles" {
   source  = "../../account-map/modules/iam-roles"
   context = module.this.context
 }
+
+variable "account_map_enabled" {
+  type        = bool
+  description = "Enable the account map component lookup. When disabled, use the `eks` variable to provide static EKS cluster configuration."
+  default     = true
+}
