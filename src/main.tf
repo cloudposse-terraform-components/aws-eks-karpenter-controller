@@ -2,7 +2,7 @@
 # https://karpenter.sh/
 
 locals {
-  enabled = module.this.enabled
+  enabled = module.this.enabled && !var.eks_auto_mode_enabled
 
   # We need aws_partition to be non-null even when this module is disabled, because it is used in a string template
   aws_partition = coalesce(one(data.aws_partition.current[*].partition), "aws")

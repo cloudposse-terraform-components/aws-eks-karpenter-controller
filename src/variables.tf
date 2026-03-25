@@ -3,6 +3,13 @@ variable "region" {
   description = "AWS Region"
 }
 
+variable "eks_auto_mode_enabled" {
+  type        = bool
+  description = "Set to true if the EKS cluster has Auto Mode compute enabled. When true, this component is disabled because Auto Mode includes managed Karpenter, making a self-managed Karpenter deployment unnecessary."
+  default     = false
+  nullable    = false
+}
+
 variable "chart_description" {
   type        = string
   description = "Set release description attribute (visible in the history)"
