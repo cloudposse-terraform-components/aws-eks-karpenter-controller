@@ -4,7 +4,7 @@ locals {
 
 module "eks" {
   source  = "cloudposse/stack-config/yaml//modules/remote-state"
-  version = "2.0.0"
+  version = "2.0.1"
 
   bypass = !local.account_map_enabled
 
